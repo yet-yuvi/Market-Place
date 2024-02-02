@@ -4,10 +4,8 @@ const User = require('../../models/User');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const authenticateToken = require('../../middleware/auth');
-const fs = require('fs');
 
 
-let lastId = readLastIdFromFile() || 0;
 // Create a user
 router.post('/', async(req, res) => {
     console.log('Request Body:', req.body);
@@ -15,9 +13,7 @@ router.post('/', async(req, res) => {
         const salt = await bcrypt.genSalt(10);
         const hash = await bcrypt.hash(req.body.password, salt);
         
-        lastId = ++lastId
         const userObject = {
-        id: lastId,
         fname: req.body.fName,
         lname: req.body.lName,
         email: req.body.email,
@@ -26,9 +22,6 @@ router.post('/', async(req, res) => {
         const user = new User(userObject);
         await user.save();
         res.status(201).json(user);
-
-        // Update the last used ID in the file
-        updateLastIdInFile(lastId);
     }
     catch (error) {
         console.error(error);
@@ -161,19 +154,6 @@ router.delete('/', async (req, res) => {
 
 module.exports = router;
 
-
-function readLastIdFromFile() {
-    try {
-        const data = fs.readFileSync('./ID/lastId.txt', 'utf8');
-        return parseInt(data);
-    } catch (err) {
-        return null;
-    }
-}
-
-function updateLastIdInFile(newId) {
-    fs.writeFileSync('./ID/lastId.txt', newId.toString(), 'utf8');
-}
 
 
 function refreshTokenLogin(refreshToken, res) {

@@ -11,7 +11,7 @@ const ProductSchema = new mongoose.Schema({
         type: String,
     },
     price: {
-        type: String
+        type: String,
     },
     fileId: {
         type: mongoose.Schema.Types.ObjectId,
