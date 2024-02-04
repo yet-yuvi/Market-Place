@@ -17,7 +17,8 @@ router.post('/', async(req, res) => {
         fname: req.body.fName,
         lname: req.body.lName,
         email: req.body.email,
-        password: hash
+        password: hash,
+        type: req.body.type ?? "customer"    // Question
         }
         const user = new User(userObject);
         await user.save();
@@ -140,11 +141,6 @@ router.delete('/:id', async(req, res) => {
 router.delete('/', async (req, res) => {
     try {
         await User.deleteMany({});
-
-        // Reset the lastId to 0 after deleting all users
-        lastId = 0;
-        updateLastIdInFile(lastId);
-
         res.json({ message: "All users have been deleted" });
     } catch (error) {
         res.status(500).json({ message: "Something went wrong" });
@@ -198,13 +194,13 @@ async function emailLogin(email, res, password) {
 
 function getUserToken(user, res) {
     const accessToken = jwt.sign(
-        { email: user.email, id: user._id }, //check
+        { email: user.email, id: user._id, type: user.type }, //check
         process.env.JWT_SECRET, //check
         { expiresIn: "7d" }
     );
 
     const refreshToken = jwt.sign(
-        { email: user.email, id: user._id }, //check
+        { email: user.email, id: user._id, type: user.type }, //check
         process.env.JWT_SECRET,
         { expiresIn: "30d" }
     );
