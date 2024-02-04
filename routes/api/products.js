@@ -18,25 +18,30 @@ const  storage = multer.diskStorage({
 const upload = multer({storage: storage});
 
 // Upload a file
-router.post("/uploads", upload.single("file"), async(req, res) => {
+router.post("/uploads", [authenticateToken, upload.single("file")], async(req, res) => {
+  if (req.user.type != "admin") {
+    return res.status(400).json({ message: "You are not an admin" });
+  }else {
     const fileObj = {
-        name: req.file.filename,    // Question
-        path: req.file.path
+      name: req.file.filename,    // Question
+      path: req.file.path
     }
 
     const file = new File(fileObj);
     await file.save();
     res.status(201).json(file);
     console.log("file");
-})
+  }
+    
+});
 
 // Product Create
 router.post('/', authenticateToken, async(req, res) => {
     try {
-      if(req.user.type != 'admin'){
-          return res.status(400).json({message: "You are not an admin"})
-
+      if(req.user.type !== 'admin') {
+          return res.status(400).json({message: "You are not an admin"});
       }
+
       const userId = req.user.id
 
       const productObj = {
@@ -146,6 +151,7 @@ router.get("/", authenticateToken, async (req, res) => {
         const id = req.params.id;
         const body = req.body;
         const product = await Product.findByIdAndUpdate(id, body, { new: true });
+        //const product = await Product.findOneAndUpdate({_id: id}, {userId: req.user.id}, body, { new: true });
   
         if (product) {
           res.json(product);
