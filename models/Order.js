@@ -18,11 +18,11 @@ const OrderSchema = new mongoose.Schema({
     purchaseDate: {
         type: Date,
     },
-    location: {
-        type: String
-    },
     expectedDeliveryDate: {
         type: Date,
+    },
+    location: {
+        type: String,
     },
     status: {
         type: String,
@@ -32,3 +32,4 @@ const OrderSchema = new mongoose.Schema({
 },{timestamps: true});
 
 module.exports = Order = mongoose.model('Order', OrderSchema);
+
