@@ -123,7 +123,7 @@ router.delete('/:id', async(req, res) => {
     try {
         const id = req.params.id;
         const deletedUser = await User.findByIdAndDelete(id);
-        //const deletedUser = await User.findByIdAndDelete({_id: id});
+        //const deletedUser = await User.findOneAndDelete({_id: id});
         if(deletedUser) {
             res.json({message: "User has been deleted"});
         }

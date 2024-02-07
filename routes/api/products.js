@@ -73,17 +73,19 @@ router.post('/', authenticateToken, async(req, res) => {
 //* get all products
 router.get("/", authenticateToken, async (req, res) => {
     try {
-      let current = req?.query?.current ?? "1";
+      let current = req?.query?.current ?? "1";    //Question for optional chaining operator
       current = parseInt(current);
       let pageSize = req?.query?.pageSize ?? "10";
       pageSize = parseInt(pageSize);
   
       const aggregate = [];
-  
+      
+      // Filter
       aggregate.push({
         $match: {},
       });
   
+      //Sorting
       aggregate.push({
           $sort: {
               // name: 1,
@@ -91,6 +93,7 @@ router.get("/", authenticateToken, async (req, res) => {
           }
       })
   
+      //Pagination
       aggregate.push({
           $skip: (current-1) * pageSize
       })
@@ -98,6 +101,7 @@ router.get("/", authenticateToken, async (req, res) => {
           $limit: pageSize * 1
       })
   
+      //Populate table
       aggregate.push({
         $lookup: {
           from: "files",
@@ -107,6 +111,7 @@ router.get("/", authenticateToken, async (req, res) => {
         },
       });
   
+      //Populate table
       aggregate.push({
         $lookup: {
           from: "users",
