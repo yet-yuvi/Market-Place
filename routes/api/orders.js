@@ -3,7 +3,7 @@ const router = express.Router();
 const Product = require('../../models/Product');
 const Order = require('../../models/Order');
 const authenticateToken = require('../../middleware/auth');
-
+const { body, validationResult } = require("express-validator");
 
 
 //Create an order
@@ -56,20 +56,35 @@ router.get("/", authenticateToken, async (req, res) => {
 })
 
 //Change order status
-router.put("/status/:id", authenticateToken, async (req, res) => {
-    try{
-        const id = req.params.id;
-        const userId = req.user.id;
-        const status = req.body.status;
-        const order = await Order.findOneAndUpdate({_id: id, userId: userId}, {status: status}, {new: true});
-        if(!order) {
-            return res.status(400).json({massage: "Order not found"});
-        } else {
-            res.json(order);
-        }
-    } catch {
-        res.status(500).json({massage: "Something went wrong"});
+router.put("/status/:id", 
+    [
+        authenticateToken, 
+        [
+            body("status", "status is required").notEmpty(),
+            body("status", "give a valid status").isIn(["in-progress", "delivered"]),
+        ],
+    ], 
+    async (req, res) => {
+        try{
+            const errors = validationResult(req);
+
+            if (!errors.isEmpty()) {
+                return res.status(400).json({ errors: errors.array() });
+            }
+            const id = req.params.id;
+            const userId = req.user.id;
+            const status = req.body.status;
+            const order = await Order.findOneAndUpdate({_id: id, userId: userId}, {status: status}, {new: true});
+            if(!order) {
+                return res.status(400).json({massage: "Order not found"});
+            } else {
+                res.json(order);
+            }
+        } catch {
+            res.status(500).json({massage: "Something went wrong"});
     }
-})
+});
+
+
 
 module.exports = router;
