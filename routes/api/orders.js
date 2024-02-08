@@ -85,6 +85,37 @@ router.put("/status/:id",
     }
 });
 
+//* Get one order
+router.get("/:id", authenticateToken, async (req, res) => {
+    try {
+      const id = req.params.id;
+      const userId = req.user.id;
+      const order = await Order.findOne({ _id: id, userId: userId });
+      if (order) {
+        res.json(order);
+      } else {
+        return res.status(400).json({ message: "Order not found" });
+      }
+    } catch (error) {
+      res.status(500).json({ message: "Something went wrong" });
+    }
+  });
+  
+  //* Delete One Order
+  router.delete("/:id", authenticateToken, async (req, res) => {
+    try {
+      const id = req.params.id;
+      const userId = req.user.id;
+      const order = await Order.findOneAndDelete({ _id: id, userId: userId });
+      if (order) {
+        res.json({message:"Deleted" });
+      } else {
+        return res.status(400).json({ message: "Order not found" });
+      }
+    } catch (error) {
+      res.status(500).json({ message: "Something went wrong" });
+    }
+  });
 
 
 module.exports = router;
